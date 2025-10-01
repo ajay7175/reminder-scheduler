@@ -1,0 +1,38 @@
+name: Reminder Check
+
+on:
+  schedule:
+    # Run every minute
+    - cron: '* * * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  check-reminders:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check Reminders
+        run: |
+          echo "🔍 Checking reminders at $(date)"
+          
+          # Call your Vercel API endpoint
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_ACTIONS_SECRET }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.VERCEL_URL }}/api/reminders/check")
+          
+          http_status=$(echo "$response" | grep "HTTP_STATUS:" | cut -d: -f2)
+          response_body=$(echo "$response" | sed '/HTTP_STATUS:/d')
+          
+          echo "📊 HTTP Status: $http_status"
+          echo "📝 Response: $response_body"
+          
+          if [ "$http_status" -eq 200 ]; then
+            echo "✅ Reminder check successful"
+            # Optional: Send success notification
+          else
+            echo "❌ Reminder check failed with status $http_status"
+            echo "📝 Full response: $response_body"
+            # Optional: Send failure notification
+            exit 1
+          fi
