@@ -17,7 +17,7 @@ jobs:
           
           # Call your Vercel API endpoint
           response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_ACTIONS_SECRET }}" \
+            -H "Authorization: Bearer ${{ secrets.ACTIONS_SECRET }}" \
             -H "Content-Type: application/json" \
             "${{ secrets.VERCEL_URL }}/api/reminders/check")
           
